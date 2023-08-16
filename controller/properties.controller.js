@@ -1,68 +1,103 @@
 const { PrismaClient } = require("@prisma/client");
+const { formidable } = require("formidable");
 const db = new PrismaClient();
+const fs = require("fs");
 
 exports.addProperty = async (req, res) => {
-	try {
-		const {
-			numberOfBedrooms,
-			datePosted,
-			numberOfBathrooms,
-			possession,
-			hasBalcony,
-			isApartment,
-			hasParking,
-			hasPowerBackup,
-			buildingAge,
-			maintenanceCharges,
-			builtupArea,
-			furnishingStatus,
-			floor,
-			gatedSecurity,
-			ownershipType,
-			flooring,
-			carpetArea,
-			facing,
-			location,
-			amenities,
-		} = req.body;
+	const form = formidable({
+		multiples: true,
+		keepExtensions: true,
+	});
 
-		const propertyData = {
-			numberOfBedrooms,
-			datePosted,
-			numberOfBathrooms,
-			possession,
-			hasBalcony,
-			isApartment,
-			hasParking,
-			hasPowerBackup,
-			buildingAge,
-			maintenanceCharges,
-			builtupArea,
-			furnishingStatus,
-			floor,
-			gatedSecurity,
-			ownershipType,
-			flooring,
-			carpetArea,
-			facing,
-			location,
-			amenities,
-		};
+	form.parse(req, async (err, fields, files) => {
+		try {
+			if (err) {
+				res.status(500).json({
+					success: false,
+					message: "Error occurred while parsing form data",
+					error: err.message,
+				});
+				return;
+			}
+			const {
+				numberOfBedrooms,
+				numberOfBathrooms,
+				possession,
+				hasBalcony,
+				isApartment,
+				hasParking,
+				hasPowerBackup,
+				buildingAge,
+				maintenanceCharges,
+				builtupArea,
+				furnishingStatus,
+				floor,
+				gatedSecurity,
+				ownershipType,
+				flooring,
+				carpetArea,
+				facing,
+				location,
+				amenities,
+			} = fields;
 
-		const newProperty = await db.property.create({
-			data: propertyData,
-		});
+			const propertyData = {
+				numberOfBedrooms: numberOfBedrooms[0],
+				numberOfBathrooms: numberOfBathrooms[0],
+				possession: possession[0],
+				hasBalcony: hasBalcony[0],
+				isApartment: isApartment[0],
+				hasParking: hasParking[0],
+				hasPowerBackup: hasPowerBackup[0],
+				buildingAge: buildingAge[0],
+				maintenanceCharges: maintenanceCharges[0],
+				builtupArea: builtupArea[0],
+				furnishingStatus: furnishingStatus[0],
+				floor: floor[0],
+				gatedSecurity: gatedSecurity[0],
+				ownershipType: ownershipType[0],
+				flooring: flooring[0],
+				carpetArea: carpetArea[0],
+				facing: facing[0],
+				location: location[0],
+				amenities: amenities,
+			};
 
-		res.status(201).json({
-			success: true,
-			property: newProperty,
-		});
-	} catch (error) {
-		res.status(500).json({
-			success: false,
-			message: error.message,
-		});
-	}
+			if (!files) {
+				res.send(
+					"No Photo is selected, So default Image will be shown in the Properties Section."
+				);
+			}
+
+			// Now We have to Create Photos:
+			if (files) {
+				// Create Photos:
+				let imageArrayRes = Promise.all(
+					Object.keys(files).map(async (fileKey, index) => {
+						const element = files[fileKey];
+						const filePath = element[0].filepath;
+						const data = fs.readFileSync(filePath);
+						// Here The Data is a Binary Data: 00 99 88 ...
+						// Todo: Upload the data to provided instance:
+					})
+				);
+			}
+
+			const newProperty = await db.property.create({
+				data: propertyData,
+			});
+
+			res.status(201).json({
+				success: true,
+				property: newProperty,
+			});
+		} catch (error) {
+			res.status(500).json({
+				success: false,
+				message: error.message,
+			});
+		}
+	});
 };
 
 exports.editPropertyById = async (req, res) => {
