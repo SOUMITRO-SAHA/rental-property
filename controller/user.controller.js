@@ -135,7 +135,24 @@ exports.login = async (req, res) => {
 		});
 	}
 };
-exports.logout = async (req, res) => {};
+
+exports.logout = async (req, res) => {
+	console.log("Log Out");
+	try {
+		res.clearCookie("token", AuthOptions);
+
+		res.status(200).json({
+			success: true,
+			message: "Successfully logged out",
+		});
+	} catch (error) {
+		res.status(500).json({
+			success: false,
+			message: "Something went wrong while logging out",
+			error: error.message,
+		});
+	}
+};
 
 // ================= [CRUD on User] ================== //
 exports.updateUserById = async (req, res) => {};
