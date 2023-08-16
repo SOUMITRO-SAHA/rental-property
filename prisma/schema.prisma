@@ -10,19 +10,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Role {
-  id    Int    @id @default(autoincrement())
-  name  String
-  users User[]
+enum AuthRoles {
+  USER
+  ADMIN
+  MANAGER
+  TENDER
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  name     String
-  email    String @unique
-  password String
-  roleId   Int
-  role     Role   @relation(fields: [roleId], references: [id])
+  id                   Int       @id @default(autoincrement())
+  name                 String
+  email                String    @unique
+  password             String
+  role                 AuthRoles @default(USER)
+  forgotPasswordToken  String?
+  forgotPasswordExpiry DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 }
 
 model Amenity {
@@ -34,7 +38,6 @@ model Amenity {
 model Property {
   id                 Int      @id @default(autoincrement())
   numberOfBedrooms   Int
-  datePosted         DateTime
   numberOfBathrooms  Int
   possession         String
   hasBalcony         Boolean
@@ -52,6 +55,8 @@ model Property {
   carpetArea         Float
   facing             String
   location           String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   amenities Amenity[] @relation("PropertyAmenities")
 }
