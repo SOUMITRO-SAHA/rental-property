@@ -6,6 +6,8 @@ const app = express();
 var cookieParser = require("cookie-parser");
 const { config } = require("./config");
 const propertyRoutes = require("./routes/properties.routes");
+const userRoutes = require("./routes/user.routes");
+const amenityRoutes = require("./routes/amenity.routes");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -35,6 +37,8 @@ app.get("/", (req, res) => {
 	res.send("Welcome to the Rental Property Backend!");
 });
 app.use("/properties", propertyRoutes);
+app.use("/amenity", amenityRoutes);
+app.use(userRoutes);
 
 app.on("error", (err) => {
 	console.log("ERROR: ", err);
