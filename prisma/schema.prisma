@@ -22,6 +22,7 @@ model User {
   name                 String
   email                String    @unique
   password             String
+  token                String?
   role                 AuthRoles @default(USER)
   forgotPasswordToken  String?
   forgotPasswordExpiry DateTime?
