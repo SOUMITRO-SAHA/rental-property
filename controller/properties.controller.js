@@ -66,14 +66,29 @@ exports.addProperty = async (req, res) => {
 
 exports.editPropertyById = async (req, res) => {
 	const propertyId = parseInt(req.params.id);
+	const updatedData = req.body;
 
 	try {
+		// First Checking for existing Properties:
+		const existingProperty = await db.property.findUnique({
+			where: {
+				id: propertyId,
+			},
+		});
+
+		// Checking if the property does not exist
+		if (!existingProperty) {
+			res.json({
+				success: false,
+				message: "Property not found",
+			});
+		}
+
 		const updatedProperty = await db.property.update({
 			where: { id: propertyId },
 			data: {
-				// Extract updated property data from req.body
-				// Example: name: req.body.name,
-				// Update other property fields here
+				...existingProperty,
+				...updatedData,
 			},
 		});
 
@@ -139,7 +154,6 @@ exports.getPropertyById = async (req, res) => {
 
 exports.getAllProperties = async (req, res) => {
 	try {
-		console.log("Hello world!");
 		const properties = await db.property.findMany();
 
 		if (!properties) {
@@ -162,3 +176,6 @@ exports.getAllProperties = async (req, res) => {
 		});
 	}
 };
+
+// Todo: clear this part, what are the field that should be there.
+exports.quickEditPropertyById = async (req, res) => {};
