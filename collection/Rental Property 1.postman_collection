@@ -1,0 +1,146 @@
+{
+	"info": {
+		"_postman_id": "eeb3b2d7-be56-47df-b36d-279c3056b565",
+		"name": "Rental Property [Shivila]",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20772347",
+		"_collection_link": "https://grey-sunset-398805.postman.co/workspace/Team-Workspace~0c980abd-a433-4a46-8b96-cc50aa110c45/collection/20772347-eeb3b2d7-be56-47df-b36d-279c3056b565?action=share&source=collection_link&creator=20772347"
+	},
+	"item": [
+		{
+			"name": "Add Properties",
+			"item": [
+				{
+					"name": "Add New Property",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"numberOfBedrooms\": 3,\r\n  \"numberOfBathrooms\": 2,\r\n  \"possession\": \"Immediate\",\r\n  \"hasBalcony\": true,\r\n  \"isApartment\": true,\r\n  \"hasParking\": true,\r\n  \"hasPowerBackup\": false,\r\n  \"buildingAge\": \"5 years\",\r\n  \"maintenanceCharges\": 1500.0,\r\n  \"builtupArea\": 1200.0,\r\n  \"furnishingStatus\": \"Semi-Furnished\",\r\n  \"floor\": \"3rd Floor\",\r\n  \"gatedSecurity\": true,\r\n  \"ownershipType\": \"Freehold\",\r\n  \"flooring\": \"Tiles\",\r\n  \"carpetArea\": 1000.0,\r\n  \"facing\": \"North\",\r\n  \"location\": \"123 Main Street, City\",\r\n  \"amenities\": {\r\n    \"create\": [\r\n      { \"name\": \"Swimming Pool\" },\r\n      { \"name\": \"Gym\" }\r\n    ]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{LOCAL}}/properties/add",
+							"host": [
+								"{{LOCAL}}"
+							],
+							"path": [
+								"properties",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Properties by ID",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"numberOfBedrooms\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{LOCAL}}/properties/1",
+							"host": [
+								"{{LOCAL}}"
+							],
+							"path": [
+								"properties",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Properties by ID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"numberOfBedrooms\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{LOCAL}}/properties/1",
+							"host": [
+								"{{LOCAL}}"
+							],
+							"path": [
+								"properties",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Properties By Id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"numberOfBedrooms\": 3,\r\n  \"datePosted\": \"2023-08-14T13:00:00.000Z\",\r\n  \"numberOfBathrooms\": 2,\r\n  \"possession\": \"Immediate\",\r\n  \"hasBalcony\": true,\r\n  \"isApartment\": true,\r\n  \"hasParking\": true,\r\n  \"hasPowerBackup\": false,\r\n  \"buildingAge\": \"5 years\",\r\n  \"maintenanceCharges\": 1500.0,\r\n  \"builtupArea\": 1200.0,\r\n  \"furnishingStatus\": \"Semi-Furnished\",\r\n  \"floor\": \"3rd Floor\",\r\n  \"gatedSecurity\": true,\r\n  \"ownershipType\": \"Freehold\",\r\n  \"flooring\": \"Tiles\",\r\n  \"carpetArea\": 1000.0,\r\n  \"facing\": \"North\",\r\n  \"location\": \"123 Main Street, City\",\r\n  \"amenities\": {\r\n    \"create\": [\r\n      { \"name\": \"Swimming Pool\" },\r\n      { \"name\": \"Gym\" }\r\n    ]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{LOCAL}}/properties/1",
+							"host": [
+								"{{LOCAL}}"
+							],
+							"path": [
+								"properties",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Properties",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{LOCAL}}/properties/get/all",
+							"host": [
+								"{{LOCAL}}"
+							],
+							"path": [
+								"properties",
+								"get",
+								"all"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
