@@ -155,6 +155,96 @@ exports.logout = async (req, res) => {
 };
 
 // ================= [CRUD on User] ================== //
-exports.updateUserById = async (req, res) => {};
-exports.getUserById = async (req, res) => {};
-exports.getAllUsers = async (req, res) => {};
+exports.updateUserById = async (req, res) => {
+	console.log("Updating user by ID...");
+	try {
+		const { userId } = req.params;
+		const updatedUserData = req.body;
+
+		// Check if userId is valid and required fields are present in the request
+		if (!userId) {
+			return res.status(400).json({
+				success: false,
+				message: "Invalid or incomplete data provided.",
+			});
+		}
+
+		// Update the user in the database
+		const updatedUser = await db.user.update({
+			where: { id: Number(userId) },
+			data: updatedUserData,
+		});
+
+		// Response to the Client
+		res.status(200).json({
+			success: true,
+			message: "User updated successfully",
+			user: updatedUser,
+		});
+	} catch (error) {
+		res.status(500).json({
+			success: false,
+			message: "Something went wrong while updating the user",
+			error: error.message,
+		});
+	}
+};
+
+exports.getUserById = async (req, res) => {
+	console.log("Getting user by ID...");
+	try {
+		const { userId } = req.params;
+
+		// Check if userId is valid
+		if (!userId) {
+			return res.status(400).json({
+				success: false,
+				message: "Invalid user ID provided",
+			});
+		}
+		console.log("Id", userId);
+
+		// Get the user from the database
+		const user = await db.user.findFirst({
+			where: {
+				id: Number(userId),
+			},
+		});
+
+		if (!user) {
+			return res.status(404).json({
+				success: false,
+				message: "User not found",
+			});
+		}
+
+		res.status(200).json({
+			success: true,
+			user,
+		});
+	} catch (error) {
+		res.status(500).json({
+			success: false,
+			message: "Something went wrong while fetching the user",
+			error: error.message,
+		});
+	}
+};
+
+exports.getAllUsers = async (req, res) => {
+	console.log("Getting all users...");
+	try {
+		const users = await db.user.findMany();
+
+		res.status(200).json({
+			success: true,
+			users,
+		});
+	} catch (error) {
+		res.status(500).json({
+			success: false,
+			message: "Something went wrong while fetching users",
+			error: error.message,
+		});
+	}
+};

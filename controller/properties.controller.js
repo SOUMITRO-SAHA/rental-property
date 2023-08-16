@@ -25,6 +25,7 @@ exports.addProperty = async (req, res) => {
 			location,
 			amenities,
 		} = req.body;
+
 		const propertyData = {
 			numberOfBedrooms,
 			datePosted,

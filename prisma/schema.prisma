@@ -33,6 +33,7 @@ model User {
 model Amenity {
   id         Int        @id @default(autoincrement())
   name       String
+  icon       String     @default("")
   properties Property[] @relation("PropertyAmenities")
 }
 
@@ -60,4 +61,12 @@ model Property {
   updatedAt          DateTime @updatedAt
 
   amenities Amenity[] @relation("PropertyAmenities")
+  Photo     Photo[]   @relation("PropertyPhotos")
+}
+
+model Photo {
+  id         Int      @id @default(autoincrement())
+  url        String
+  property   Property @relation("PropertyPhotos", fields: [propertyId], references: [id])
+  propertyId Int
 }
