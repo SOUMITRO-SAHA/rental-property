@@ -28,6 +28,17 @@ exports.signUp = async (req, res) => {
 				message: "All fields are required",
 			});
 		}
+		// Before Creating a new User first check whether the user already exists or not:
+		const existingUser = await db.user.findFirst({
+			where: { email: email },
+		});
+
+		if (existingUser) {
+			return res.status(404).json({
+				success: false,
+				message: "User already exists",
+			});
+		}
 
 		// Before Storing the Password make it Encrypted:
 		const encryptedPassword = await bcrypt.hash(password, 10);
@@ -101,7 +112,7 @@ exports.login = async (req, res) => {
 
 		// Check whether the user exists
 		if (!user) {
-			res.status(404).json({
+			return res.status(404).json({
 				success: false,
 				message: "User does not exist",
 			});
@@ -154,6 +165,7 @@ exports.logout = async (req, res) => {
 	}
 };
 
+// Only Admins Can do this:
 exports.updateRole = async (req, res) => {
 	console.log("Update Role");
 	const { userId } = req.params;
