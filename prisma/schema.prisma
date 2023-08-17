@@ -18,16 +18,17 @@ enum AuthRoles {
 }
 
 model User {
-  id                   Int       @id @default(autoincrement())
+  id                   Int           @id @default(autoincrement())
   name                 String
-  email                String    @unique
+  email                String        @unique
   password             String
   token                String?
-  role                 AuthRoles @default(USER)
+  role                 AuthRoles     @default(USER)
   forgotPasswordToken  String?
   forgotPasswordExpiry DateTime?
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  appointments         Appointment[]
 }
 
 model Amenity {
@@ -69,4 +70,13 @@ model Photo {
   url        String
   property   Property @relation("PropertyPhotos", fields: [propertyId], references: [id])
   propertyId Int
+}
+
+model Appointment {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  startTime   DateTime
+  endTime     DateTime
+  description String?
 }
