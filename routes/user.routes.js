@@ -11,5 +11,6 @@ router.get("/auth/log-out", userController.logout);
 router.get("/admin/user/:userId", userController.getUserById);
 router.get("/admin/users/all", userController.getAllUsers);
 router.patch("/admin/user/:userId", userController.updateUserById);
+router.patch("/admin/role/:userId", userController.updateRole);
 
 module.exports = router;
