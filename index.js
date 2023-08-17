@@ -10,6 +10,7 @@ const propertyRoutes = require("./routes/properties.routes");
 const userRoutes = require("./routes/user.routes");
 const amenityRoutes = require("./routes/amenity.routes");
 const appointmentRoutes = require("./routes/appointment.routes");
+const ticketRoutes = require("./routes/ticket.routes");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -44,6 +45,7 @@ app.use("/properties", propertyRoutes);
 app.use("/amenity", amenityRoutes);
 app.use(userRoutes);
 app.use("/appointment", appointmentRoutes);
+app.use("/ticket", ticketRoutes);
 
 app.on("error", (err) => {
 	console.log("ERROR: ", err);
