@@ -1,0 +1,559 @@
+{
+	"info": {
+		"_postman_id": "eeb3b2d7-be56-47df-b36d-279c3056b565",
+		"name": "Rental Property [Shivila]",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20772347",
+		"_collection_link": "https://grey-sunset-398805.postman.co/workspace/Team-Workspace~0c980abd-a433-4a46-8b96-cc50aa110c45/collection/20772347-eeb3b2d7-be56-47df-b36d-279c3056b565?action=share&source=collection_link&creator=20772347"
+	},
+	"item": [
+		{
+			"name": "Add Properties",
+			"item": [
+				{
+					"name": "Add New Property",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "numberOfBedrooms",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "numberOfBathrooms",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "possession",
+									"value": "Immediate",
+									"type": "text"
+								},
+								{
+									"key": "hasBalcony",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "isApartment",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "hasParking",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "hasPowerBackup",
+									"value": "false",
+									"type": "text"
+								},
+								{
+									"key": "buildingAge",
+									"value": "5 years",
+									"type": "text"
+								},
+								{
+									"key": "maintenanceCharges",
+									"value": "1500",
+									"type": "text"
+								},
+								{
+									"key": "builtupArea",
+									"value": "1200",
+									"type": "text"
+								},
+								{
+									"key": "furnishingStatus",
+									"value": "Semi-Furnished",
+									"type": "text"
+								},
+								{
+									"key": "floor",
+									"value": "4rd Floor",
+									"type": "text"
+								},
+								{
+									"key": "gatedSecurity",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "ownershipType",
+									"value": "Freehold",
+									"type": "text"
+								},
+								{
+									"key": "flooring",
+									"value": "Tiles",
+									"type": "text"
+								},
+								{
+									"key": "carpetArea",
+									"value": "1000",
+									"type": "text"
+								},
+								{
+									"key": "facing",
+									"value": "North",
+									"type": "text"
+								},
+								{
+									"key": "location",
+									"value": "123 Main Street, City",
+									"type": "text"
+								},
+								{
+									"key": "amenities",
+									"value": "[\"Housing\"]",
+									"type": "text"
+								},
+								{
+									"key": "photos",
+									"type": "file",
+									"src": "/C:/Users/soumi/OneDrive/Pictures/vlcsnap-2022-11-11-22h07m17s738.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{LOCAL}}/properties/add",
+							"host": [
+								"{{LOCAL}}"
+							],
+							"path": [
+								"properties",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Properties by ID",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"numberOfBedrooms\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{LOCAL}}/properties/1",
+							"host": [
+								"{{LOCAL}}"
+							],
+							"path": [
+								"properties",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Properties by ID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"numberOfBedrooms\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{LOCAL}}/properties/1",
+							"host": [
+								"{{LOCAL}}"
+							],
+							"path": [
+								"properties",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Properties By Id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"numberOfBedrooms\": 3,\r\n  \"datePosted\": \"2023-08-14T13:00:00.000Z\",\r\n  \"numberOfBathrooms\": 2,\r\n  \"possession\": \"Immediate\",\r\n  \"hasBalcony\": true,\r\n  \"isApartment\": true,\r\n  \"hasParking\": true,\r\n  \"hasPowerBackup\": false,\r\n  \"buildingAge\": \"5 years\",\r\n  \"maintenanceCharges\": 1500.0,\r\n  \"builtupArea\": 1200.0,\r\n  \"furnishingStatus\": \"Semi-Furnished\",\r\n  \"floor\": \"3rd Floor\",\r\n  \"gatedSecurity\": true,\r\n  \"ownershipType\": \"Freehold\",\r\n  \"flooring\": \"Tiles\",\r\n  \"carpetArea\": 1000.0,\r\n  \"facing\": \"North\",\r\n  \"location\": \"123 Main Street, City\",\r\n  \"amenities\": {\r\n    \"create\": [\r\n      { \"name\": \"Swimming Pool\" },\r\n      { \"name\": \"Gym\" }\r\n    ]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{LOCAL}}/properties/1",
+							"host": [
+								"{{LOCAL}}"
+							],
+							"path": [
+								"properties",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Properties",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{LOCAL}}/properties/get/all",
+							"host": [
+								"{{LOCAL}}"
+							],
+							"path": [
+								"properties",
+								"get",
+								"all"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Auth",
+					"item": [
+						{
+							"name": "Sign Up",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"SS 2\",\r\n    \"email\": \"demo@gmail.com\",\r\n    \"password\": \"12345\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}/auth/sign-up",
+									"host": [
+										"{{LOCAL}}"
+									],
+									"path": [
+										"auth",
+										"sign-up"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Log In",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"sss@gmail.com\",\r\n    \"password\": \"12345\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}/auth/log-in",
+									"host": [
+										"{{LOCAL}}"
+									],
+									"path": [
+										"auth",
+										"log-in"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Log Out",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"ss@gmail.com\",\r\n    \"password\": \"12345\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}/auth/log-out",
+									"host": [
+										"{{LOCAL}}"
+									],
+									"path": [
+										"auth",
+										"log-out"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Admin",
+					"item": [
+						{
+							"name": "Update Role",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"role\": \"ADMIN\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}/admin/role/2",
+									"host": [
+										"{{LOCAL}}"
+									],
+									"path": [
+										"admin",
+										"role",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Users",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}/admin/users/all",
+									"host": [
+										"{{LOCAL}}"
+									],
+									"path": [
+										"admin",
+										"users",
+										"all"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get User By Id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{LOCAL}}/admin/user/1",
+									"host": [
+										"{{LOCAL}}"
+									],
+									"path": [
+										"admin",
+										"user",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update User By Id",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"sss@gmail.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{LOCAL}}/admin/user/1",
+									"host": [
+										"{{LOCAL}}"
+									],
+									"path": [
+										"admin",
+										"user",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Amenity",
+			"item": [
+				{
+					"name": "Get All Amenity",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{LOCAL}}/amenity/all",
+							"host": [
+								"{{LOCAL}}"
+							],
+							"path": [
+								"amenity",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post Amenity",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Housing",
+									"type": "text"
+								},
+								{
+									"key": "icon",
+									"type": "file",
+									"src": "/C:/Users/soumi/OneDrive/Pictures/vlcsnap-2022-11-11-22h07m17s738.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{LOCAL}}/amenity/add",
+							"host": [
+								"{{LOCAL}}"
+							],
+							"path": [
+								"amenity",
+								"add"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Appointment",
+			"item": [
+				{
+					"name": "Get All Appointments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{LOCAL}}/appointment/all",
+							"host": [
+								"{{LOCAL}}"
+							],
+							"path": [
+								"appointment",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Appointments By User Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{LOCAL}}/appointment/1",
+							"host": [
+								"{{LOCAL}}"
+							],
+							"path": [
+								"appointment",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create New Appointments",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"userId\": 1,\r\n  \"startTime\": \"2023-08-17T09:00:00Z\",\r\n  \"endTime\": \"2023-08-17T10:00:00Z\",\r\n  \"description\": \"Meeting with Client\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{LOCAL}}/appointment/add",
+							"host": [
+								"{{LOCAL}}"
+							],
+							"path": [
+								"appointment",
+								"add"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
