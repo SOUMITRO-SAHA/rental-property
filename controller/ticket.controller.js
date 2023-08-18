@@ -80,7 +80,7 @@ exports.getTicketById = async (req, res) => {
 	const { ticketId } = req.params;
 	try {
 		const ticket = await db.ticket.findFirst({
-			where: { ticketId: parseInt(ticketId) },
+			where: { id: parseInt(ticketId) },
 		});
 
 		if (!ticket) {
@@ -149,15 +149,15 @@ exports.getHighPriorityTickets = async (req, res) => {
 
 // Only Admin & Manager can update the ticket status:
 exports.updateTicketStatus = async (req, res) => {
-	const { ticketId, newStatus } = req.body;
+	const { ticketId, status } = req.body;
 
 	try {
 		const updatedTicket = await db.ticket.update({
 			where: {
-				ticketId: parseInt(ticketId),
+				id: parseInt(ticketId),
 			},
 			data: {
-				status: newStatus,
+				status: status,
 			},
 		});
 

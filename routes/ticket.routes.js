@@ -8,13 +8,13 @@ router.post("/create", ticketController.createTicket);
 
 // This should only available to the People with permission
 // Like ADMIN AND MANAGER.
-router.post("/all", isPermitted, ticketController.getAllTickets);
-router.post("/:ticketId", isPermitted, ticketController.getTicketById);
-router.post(
+router.get("/all", isPermitted, ticketController.getAllTickets);
+router.get("/:ticketId", isPermitted, ticketController.getTicketById);
+router.get(
 	"/priority/high",
 	isPermitted,
 	ticketController.getHighPriorityTickets
 );
-router.post("/update", isPermitted, ticketController.updateTicketStatus);
+router.patch("/update", isPermitted, ticketController.updateTicketStatus);
 
 module.exports = router;
