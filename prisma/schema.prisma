@@ -39,6 +39,7 @@ model Property {
   possession         String
   hasBalcony         Boolean
   isApartment        Boolean
+  apartmentType      String
   hasParking         Boolean
   hasPowerBackup     Boolean
   buildingAge        String

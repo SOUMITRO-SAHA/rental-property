@@ -27,6 +27,7 @@ exports.addProperty = async (req, res) => {
 				possession,
 				hasBalcony,
 				isApartment,
+				apartmentType,
 				hasParking,
 				hasPowerBackup,
 				buildingAge,
@@ -40,7 +41,6 @@ exports.addProperty = async (req, res) => {
 				carpetArea,
 				facing,
 				location,
-				amenities,
 			} = fields;
 
 			const propertyData = {
@@ -49,6 +49,7 @@ exports.addProperty = async (req, res) => {
 				possession: possession[0],
 				hasBalcony: hasBalcony === "true", // Convert to boolean
 				isApartment: isApartment === "true",
+				apartmentType: apartmentType[0],
 				hasParking: hasParking === "true",
 				hasPowerBackup: hasPowerBackup === "true",
 				buildingAge: buildingAge[0],
@@ -63,8 +64,6 @@ exports.addProperty = async (req, res) => {
 				facing: facing[0],
 				location: location[0],
 			};
-
-			console.log(propertyData);
 
 			if (!files) {
 				res.send(
