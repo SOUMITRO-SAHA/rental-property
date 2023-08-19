@@ -1,17 +1,15 @@
 const { PrismaClient } = require("@prisma/client");
-const { formidable } = require("formidable");
+const formidable = require("formidable");
 const db = new PrismaClient();
 const fs = require("fs");
 
 exports.addProperty = async (req, res) => {
 	console.log("Add property");
 
-	const form = formidable({
-		multiples: true,
-		keepExtensions: true,
-	});
+	const form = new formidable.IncomingForm();
 
 	form.parse(req, async (err, fields, files) => {
+		console.log(fields);
 		try {
 			if (err) {
 				res.status(500).json({
@@ -64,6 +62,8 @@ exports.addProperty = async (req, res) => {
 				facing: facing[0],
 				location: location[0],
 			};
+
+			console.log(propertyData);
 
 			if (!files) {
 				res.send(
