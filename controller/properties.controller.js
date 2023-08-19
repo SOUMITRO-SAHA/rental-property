@@ -4,6 +4,8 @@ const db = new PrismaClient();
 const fs = require("fs");
 
 exports.addProperty = async (req, res) => {
+	console.log("Add property");
+
 	const form = formidable({
 		multiples: true,
 		keepExtensions: true,
@@ -42,26 +44,27 @@ exports.addProperty = async (req, res) => {
 			} = fields;
 
 			const propertyData = {
-				numberOfBedrooms: numberOfBedrooms[0],
-				numberOfBathrooms: numberOfBathrooms[0],
+				numberOfBedrooms: parseInt(numberOfBedrooms),
+				numberOfBathrooms: parseInt(numberOfBathrooms),
 				possession: possession[0],
-				hasBalcony: hasBalcony[0],
-				isApartment: isApartment[0],
-				hasParking: hasParking[0],
-				hasPowerBackup: hasPowerBackup[0],
+				hasBalcony: hasBalcony === "true", // Convert to boolean
+				isApartment: isApartment === "true",
+				hasParking: hasParking === "true",
+				hasPowerBackup: hasPowerBackup === "true",
 				buildingAge: buildingAge[0],
-				maintenanceCharges: maintenanceCharges[0],
-				builtupArea: builtupArea[0],
+				maintenanceCharges: parseFloat(maintenanceCharges),
+				builtupArea: parseFloat(builtupArea),
 				furnishingStatus: furnishingStatus[0],
 				floor: floor[0],
-				gatedSecurity: gatedSecurity[0],
+				gatedSecurity: gatedSecurity === "true",
 				ownershipType: ownershipType[0],
 				flooring: flooring[0],
-				carpetArea: carpetArea[0],
+				carpetArea: parseFloat(carpetArea),
 				facing: facing[0],
 				location: location[0],
-				amenities: amenities,
 			};
+
+			console.log(propertyData);
 
 			if (!files) {
 				res.send(
