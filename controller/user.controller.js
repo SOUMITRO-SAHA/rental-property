@@ -7,9 +7,7 @@ const AuthOptions = require("../utils/authOptions");
 const { AuthRoles } = require("../utils/AuthRoles");
 
 // ================= [Authentication] ================== //
-
 exports.signUp = async (req, res) => {
-	console.log("Signing up...");
 	try {
 		const errors = validationResult(req);
 
@@ -83,7 +81,6 @@ exports.signUp = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-	console.log("Login...");
 	try {
 		const errors = validationResult(req);
 
@@ -148,7 +145,6 @@ exports.login = async (req, res) => {
 };
 
 exports.logout = async (req, res) => {
-	console.log("Log Out");
 	try {
 		res.clearCookie("token", AuthOptions);
 
@@ -165,9 +161,7 @@ exports.logout = async (req, res) => {
 	}
 };
 
-// Only Admins Can do this:
 exports.updateRole = async (req, res) => {
-	console.log("Update Role");
 	const { userId } = req.params;
 	const { role } = req.body;
 	try {
