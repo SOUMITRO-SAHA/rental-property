@@ -1,10 +1,16 @@
-const { PrismaClient } = require("@prisma/client");
+const date = require("date-fns");
+const db = require("../config/db");
 const formidable = require("formidable");
-const db = new PrismaClient();
 const fs = require("fs");
+const {
+	propertySchema,
+	propertyDetailsSchema,
+	rentalDetailsSchema,
+} = require("../validator/property.validation");
 
+// Admin
 exports.addProperty = async (req, res) => {
-	console.log("Add property");
+	console.log("Add Property");
 
 	const form = new formidable.IncomingForm();
 
@@ -19,81 +25,139 @@ exports.addProperty = async (req, res) => {
 				return;
 			}
 			const {
+				userId,
 				numberOfBedrooms,
 				numberOfBathrooms,
 				possession,
 				hasBalcony,
-				isApartment,
-				apartmentType,
-				hasParking,
 				hasPowerBackup,
+				propertyType,
+				isApartment,
 				buildingAge,
-				maintenanceCharges,
-				builtupArea,
-				furnishingStatus,
 				floor,
+				totalFloor,
+				builtupArea,
+				buildingType,
+				furnishingStatus,
+				expectedRent,
+				expectedDeposit,
+				rentNegotiable,
+				maintenanceCharges,
+				availableDate,
 				gatedSecurity,
 				ownershipType,
 				flooring,
+				hasParking,
 				carpetArea,
 				facing,
 				location,
 			} = fields;
 
+			const dateTime = date.format(
+				new Date(availableDate[0]),
+				"yyyy-MM-dd HH:mm:ss"
+			);
+
+			if (!files.photos) {
+				res.status(400).json({
+					success: false,
+					message:
+						"No Photo is selected, So default Image will be shown in the Properties Section.",
+				});
+			}
+
 			const propertyData = {
+				userId: parseInt(userId),
 				numberOfBedrooms: parseInt(numberOfBedrooms),
 				numberOfBathrooms: parseInt(numberOfBathrooms),
 				possession: possession[0],
-				hasBalcony: hasBalcony === "true", // Convert to boolean
-				isApartment: isApartment === "true",
-				apartmentType: apartmentType[0],
-				hasParking: hasParking === "true",
+				hasBalcony: hasBalcony === "true",
 				hasPowerBackup: hasPowerBackup === "true",
+				propertyType: propertyType[0],
+				isApartment: isApartment === "true",
 				buildingAge: buildingAge[0],
-				maintenanceCharges: parseFloat(maintenanceCharges),
-				builtupArea: parseFloat(builtupArea),
-				furnishingStatus: furnishingStatus[0],
 				floor: floor[0],
+				totalFloor: totalFloor[0],
+				builtupArea: parseFloat(builtupArea),
+				buildingType: buildingType[0],
+				furnishingStatus: furnishingStatus[0],
+				expectedRent: expectedRent[0],
+				expectedDeposit: expectedDeposit[0],
+				rentNegotiable: rentNegotiable === "true",
+				maintenanceCharges: parseFloat(maintenanceCharges),
+				availableDate: dateTime,
 				gatedSecurity: gatedSecurity === "true",
 				ownershipType: ownershipType[0],
 				flooring: flooring[0],
+				hasParking: hasParking === "true",
 				carpetArea: parseFloat(carpetArea),
 				facing: facing[0],
 				location: location[0],
 			};
 
-			if (!files) {
-				res.send(
-					"No Photo is selected, So default Image will be shown in the Properties Section."
-				);
+			// Validating the Property Data:
+			const { error, value: validatePropertyData } =
+				propertySchema.validate(propertyData);
+
+			// checking for any validation errors:
+			if (error) {
+				return res.status(400).json({
+					success: false,
+					message: "Invalid property data",
+					error: error.details.map((detail) => detail.message),
+				});
 			}
 
 			// Now We have to Create Photos:
-			if (files) {
-				// Create Photos:
-				let imageArrayRes = Promise.all(
-					Object.keys(files).map(async (fileKey, index) => {
-						const element = files[fileKey];
-						const filePath = element[0].filepath;
-						const data = fs.readFileSync(filePath);
-						// Here The Data is a Binary Data: 00 99 88 ...
-						// Todo: Upload the data to provided instance:
-					})
-				);
-			}
+			// let imagePath;
+			// if (files) {
+			// 	// Create Photos:
+			// 	let imageArrayRes = Promise.all(
+			// 		Object.keys(files).map(async (fileKey, index) => {
+			// 			const element = files[fileKey];
+			// 			const filePath = element[0].filepath;
+			// 			const data = fs.readFileSync(filePath);
+			// 			const imgExtension = element[0].mimetype.split("/")[1];
 
+			// 			// For now store it into the Upload files:
+			// 			const uploadFolderPath = path.join(
+			// 				__dirname,
+			// 				"../uploads/properties"
+			// 			);
+			// 			const imageName = `properties-${userId}-${index}.${imgExtension}`;
+
+			// 			imagePath = path.join(uploadFolderPath, imageName);
+
+			// 			// Save the image data to the specified path:
+			// 			fs.writeFileSync(imagePath, data);
+			// 		})
+			// 	);
+			// }
+
+			// Before Storing the Image to the Property store it on the Photos:
 			const newProperty = await db.property.create({
-				data: propertyData,
+				data: validatePropertyData,
 			});
+
+			console.log(newProperty);
+
+			if (!newProperty) {
+				return res.status(400).json({
+					success: false,
+					message: "An error occurred while creating a new Property",
+				});
+			}
 
 			res.status(201).json({
 				success: true,
+				message: "The new property has been created successfully",
 				property: newProperty,
 			});
 		} catch (error) {
 			res.status(500).json({
 				success: false,
-				message: error.message,
+				message: "Something went wrong while creating a new property",
+				error: error.message,
 			});
 		}
 	});
@@ -201,6 +265,7 @@ exports.getAllProperties = async (req, res) => {
 
 		res.status(200).json({
 			success: true,
+			message: "Successfully found all properties",
 			properties,
 		});
 	} catch (error) {
@@ -212,5 +277,164 @@ exports.getAllProperties = async (req, res) => {
 	}
 };
 
-// Todo: clear this part, what are the field that should be there.
-exports.quickEditPropertyById = async (req, res) => {};
+// Quick Add
+exports.addPropertyDetails = async (req, res) => {
+	const { userId } = req.params;
+	try {
+		const {
+			propertyType,
+			buildingType,
+			buildingAge,
+			floor,
+			totalFloor,
+			buildupArea,
+			furnishingStatus,
+		} = req.body;
+
+		if (
+			!(
+				propertyType &&
+				buildingType &&
+				buildingAge &&
+				floor &&
+				totalFloor &&
+				buildupArea &&
+				furnishingStatus
+			)
+		) {
+			return res.status(400).json({
+				success: false,
+				message: "All the fields are required",
+			});
+		}
+
+		const propertyDetails = {
+			userId: parseInt(userId),
+			propertyType,
+			builtupArea: parseFloat(buildupArea),
+			furnishingStatus,
+			buildingType,
+			floor,
+			totalFloor,
+			buildingAge,
+		};
+
+		// Validating the Property Data:
+		const { error, value: validatePropertyData } =
+			propertyDetailsSchema.validate(propertyDetails);
+
+		console.log("validate", validatePropertyData);
+
+		// checking for any validation errors:
+		if (error) {
+			return res.status(400).json({
+				success: false,
+				message: "Invalid property details",
+				error: error.details.map((detail) => detail.message),
+			});
+		}
+
+		const newProperty = await db.property.create({
+			data: validatePropertyData,
+		});
+
+		if (!newProperty) {
+			return res.status(400).json({
+				success: false,
+				message: "An error occurred while creating a new property",
+			});
+		}
+
+		res.status(200).json({
+			success: true,
+			message: "Successfully created a new property",
+			newProperty,
+		});
+	} catch (error) {
+		res.status(500).json({
+			success: false,
+			message: "Something went wrong while creating a new property",
+		});
+	}
+};
+
+// Todo: Testing Left
+exports.addRentalDetails = async (req, res) => {
+	const {
+		propertyId,
+		expectedRent,
+		expectedDeposit,
+		rentNegotiable,
+		maintenanceCharges,
+		availableDate,
+		ownershipType,
+		hasParking,
+		hasBalcony,
+		description,
+		flooring,
+	} = req.body;
+
+	try {
+		// Date format:
+		const dateTime = date.format(
+			new Date(availableDate),
+			"yyyy-MM-dd HH:mm:ss"
+		);
+
+		const rentalDetails = {
+			propertyId: parseInt(propertyId),
+			expectedRent,
+			expectedDeposit,
+			rentNegotiable,
+			maintenanceCharges: parseFloat(maintenanceCharges),
+			availableDate: dateTime,
+			ownershipType,
+			hasParking,
+			hasBalcony,
+			description,
+			flooring,
+		};
+
+		// Validate the property Data:
+		const { error, value: validatePropertyData } =
+			rentalDetailsSchema.validate(rentalDetails);
+
+		if (error) {
+			return res.status(400).json({
+				success: false,
+				message: "Invalid rental data",
+				error: error.details.map((detail) => detail.message),
+			});
+		}
+		// checking for any validation errors:
+		const updateProperty = await db.property.update({
+			where: { id: rentalDetails?.propertyId },
+			data: validatePropertyData,
+		});
+
+		console.log("UD", updateProperty);
+
+		if (!updateProperty) {
+			return res.status(404).json({
+				success: false,
+				message: `an error occurred while updating the property ${propertyId}`,
+			});
+		}
+
+		res.status(200).json({
+			success: true,
+			message: `Successfully added the updated information to the property with id ${propertyId}`,
+			updateProperty,
+		});
+	} catch (error) {
+		res.status(500).json({
+			success: false,
+			message: `Something went wrong while adding the rental details, with property id ${propertyId}`,
+		});
+	}
+};
+
+exports.addLocationDetails = async (req, res) => {};
+exports.addAmenities = async (req, res) => {};
+exports.addPhotos = async (req, res) => {};
+exports.AdditionalInformation = async (req, res) => {};

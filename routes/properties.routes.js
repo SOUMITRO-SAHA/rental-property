@@ -19,6 +19,10 @@ router.get("/:id", propertyController.getPropertyById);
 router.get("/get/all", propertyController.getAllProperties);
 
 // ============= [Quick Add] ============= //
-router.patch("/quick/:id", propertyController.quickEditPropertyById);
+router.post(
+	"/quick/property-details/:userId",
+	propertyController.addPropertyDetails
+);
+router.post("/quick/rental-details", propertyController.addRentalDetails);
 
 module.exports = router;

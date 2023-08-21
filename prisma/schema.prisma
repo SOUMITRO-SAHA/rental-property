@@ -30,32 +30,61 @@ model User {
   updatedAt            DateTime      @updatedAt
   appointments         Appointment[]
   tickets              Ticket[]
+  properties           Property[]
+}
+
+model Amenity {
+  id              Int               @id @default(autoincrement())
+  name            String
+  icon            String            @default("")
+  PropertyAmenity PropertyAmenity[]
 }
 
 model Property {
   id                 Int      @id @default(autoincrement())
-  numberOfBedrooms   Int
-  numberOfBathrooms  Int
-  possession         String
-  hasBalcony         Boolean
-  isApartment        Boolean
-  apartmentType      String
-  hasParking         Boolean
-  hasPowerBackup     Boolean
-  buildingAge        String
-  maintenanceCharges Float
-  builtupArea        Float
-  furnishingStatus   String
-  floor              String
-  gatedSecurity      Boolean
-  ownershipType      String
-  flooring           String
-  carpetArea         Float
-  facing             String
-  location           String
+  userId             Int
+  numberOfBedrooms   Int      @default(0)
+  numberOfBathrooms  Int      @default(0)
+  possession         String   @default("Immediate")
+  hasBalcony         Boolean  @default(false)
+  hasPowerBackup     Boolean  @default(false)
+  propertyType       String   @default("Residential")
+  isApartment        Boolean  @default(false)
+  buildingAge        String   @default("New")
+  floor              String   @default("Ground Floor")
+  totalFloor         String   @default("1")
+  builtupArea        Float    @default(0)
+  buildingType       String   @default("Other")
+  furnishingStatus   String   @default("Unfurnished")
+  expectedRent       String   @default("Contact for rent")
+  expectedDeposit    String   @default("Contact for deposit")
+  rentNegotiable     Boolean  @default(true)
+  maintenanceCharges Float    @default(0)
+  availableDate      DateTime @default(now())
+  gatedSecurity      Boolean  @default(false)
+  ownershipType      String   @default("Freehold")
+  flooring           String   @default("Other")
+  hasParking         Boolean  @default(false)
+  carpetArea         Float    @default(0)
+  facing             String   @default("Other")
+  location           String   @default("Unknown")
+  description        String   @default("")
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
-  Photo              Photo[]  @relation("PropertyPhotos")
+
+  // Relationship
+  user      User              @relation(fields: [userId], references: [id])
+  Photo     Photo[]           @relation("PropertyPhotos")
+  amenities PropertyAmenity[]
+}
+
+// Junction table that connects properties to amenities in a many-to-many relationship
+model PropertyAmenity {
+  id         Int      @id @default(autoincrement())
+  property   Property @relation(fields: [propertyId], references: [id])
+  propertyId Int
+  amenity    Amenity  @relation(fields: [amenityId], references: [id])
+  amenityId  Int
 }
 
 model Photo {

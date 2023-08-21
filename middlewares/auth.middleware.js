@@ -80,7 +80,7 @@ exports.authoriseAdmin = async (req, res, next) => {
 		});
 	} catch (error) {
 		res.status(401).json({
-			success: true,
+			success: false,
 			message: "Not authorized to access this route",
 		});
 	}
