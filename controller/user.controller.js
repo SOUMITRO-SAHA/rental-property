@@ -4,11 +4,10 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { config } = require("../config");
 const AuthOptions = require("../utils/authOptions");
+const { AuthRoles } = require("../utils/AuthRoles");
 
 // ================= [Authentication] ================== //
-
 exports.signUp = async (req, res) => {
-	console.log("Signing up...");
 	try {
 		const errors = validationResult(req);
 
@@ -20,11 +19,22 @@ exports.signUp = async (req, res) => {
 			});
 		}
 
-		const { name, email, password, role } = req.body;
-		if (!(name && email && password && role)) {
+		const { name, email, password } = req.body;
+		if (!(name && email && password)) {
 			res.status(406).json({
 				success: false,
 				message: "All fields are required",
+			});
+		}
+		// Before Creating a new User first check whether the user already exists or not:
+		const existingUser = await db.user.findFirst({
+			where: { email: email },
+		});
+
+		if (existingUser) {
+			return res.status(404).json({
+				success: false,
+				message: "User already exists",
 			});
 		}
 
@@ -36,7 +46,6 @@ exports.signUp = async (req, res) => {
 				name: name,
 				email: email,
 				password: encryptedPassword,
-				role: role,
 			},
 		});
 
@@ -72,7 +81,6 @@ exports.signUp = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-	console.log("Login...");
 	try {
 		const errors = validationResult(req);
 
@@ -101,7 +109,7 @@ exports.login = async (req, res) => {
 
 		// Check whether the user exists
 		if (!user) {
-			res.status(404).json({
+			return res.status(404).json({
 				success: false,
 				message: "User does not exist",
 			});
@@ -137,7 +145,6 @@ exports.login = async (req, res) => {
 };
 
 exports.logout = async (req, res) => {
-	console.log("Log Out");
 	try {
 		res.clearCookie("token", AuthOptions);
 
@@ -149,6 +156,42 @@ exports.logout = async (req, res) => {
 		res.status(500).json({
 			success: false,
 			message: "Something went wrong while logging out",
+			error: error.message,
+		});
+	}
+};
+
+exports.updateRole = async (req, res) => {
+	const { userId } = req.params;
+	const { role } = req.body;
+	try {
+		// First Checking for Valid Auth Roles:
+		if (!Object.values(AuthRoles).includes(role)) {
+			res.status(400).json({
+				success: true,
+				message: "Invalid role",
+			});
+		}
+		// Now, Update the role fo the User:
+		const user = await db.user.update({
+			where: { id: parseInt(userId) },
+			data: { role: role },
+		});
+		if (!user) {
+			res.status(400).json({
+				success: false,
+				message: "User not found",
+			});
+		}
+		res.status(200).json({
+			success: true,
+			message: "User updated successfully",
+			user,
+		});
+	} catch (error) {
+		res.status(500).json({
+			success: false,
+			message: "An error occurred while updating the user role",
 			error: error.message,
 		});
 	}

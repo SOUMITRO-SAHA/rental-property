@@ -1,15 +1,11 @@
 const db = require("../config/db");
-const { formidable } = require("formidable");
-const { s3FileUpload } = require("../services/imageUpload");
+const formidable = require("formidable");
 const { config } = require("../config");
+const fs = require("fs");
+const path = require("path");
 
 exports.add = async (req, res) => {
-	console.log("Adding...");
-
-	const form = formidable({
-		multiples: true,
-		keepExtensions: true,
-	});
+	const form = new formidable.IncomingForm();
 
 	form.parse(req, async (err, fields, files) => {
 		try {
@@ -22,46 +18,60 @@ exports.add = async (req, res) => {
 				return;
 			}
 
-			// Let First Get the Amenity Id:
+			// Checking for name:
+			if (!fields.name) {
+				return res.status(406).json({
+					success: false,
+					message: "Name if not defined",
+				});
+			}
 
 			if (!files.icon) {
-				res.status(406).json({
+				return res.status(406).json({
 					success: false,
 					message: "Not image is selected",
 				});
 			}
 
-			// Handling the Image Array:
-			// Todo: AWS-SDK Calling Here:
-			/*
-      let imageArrayRes = Promise.all(
+			const name = fields.name[0];
+			let imagePath;
+			// Taking the Imagese into an array:
+			let imageArrayRespose = Promise.all(
+				// Make sure the the images are an array
 				Object.keys(files).map(async (fileKey, index) => {
 					const element = files[fileKey];
-					const data = fs.readFileSync(element.filePath);
-					// Todo: Upload the Image into the Bucket:
-					const uplodad = await s3FileUpload({
-						bucketName: config.S3_BUCKET_NAME,
-						key: `amenities/photo_${index + 1}/${Date.now()}`,
-					});
+					const data = fs.readFileSync(element[0].filepath);
+					const imgExtension = element[0].mimetype.split("/")[1];
 
-					return {
-						secure_url: uplodad.Location,
-					};
+					// For now store it into the Upload files:
+					const uploadFolderPath = path.join(__dirname, "../uploads/amenities");
+					const imageName = `amenities-${index}.${imgExtension}`;
+					imagePath = path.join(uploadFolderPath, imageName);
+
+					// Save the image data to the specified path:
+					fs.writeFileSync(imagePath, data);
 				})
 			);
 
-      let imgArray = await imageArrayRes;
-      */
-
+			// Getting the Images:
+			let imgArray = await imageArrayRespose;
+			// If Successfully Uploaded then Store the file into the Database
 			// Now, Create a new amenities:
-
 			const amenity = await db.amenity.create({
 				data: {
-					name: fields.name[0],
-					icon: files.icon.newFilename, // Todo Upload the secure_url link here
+					name,
+					icon: imagePath,
 				},
 			});
-			// Rest of the code
+
+			if (!amenity) {
+				return res.status(404).json({
+					success: false,
+					message:
+						"An error occurred while creating an amenity. Please try again",
+				});
+			}
+
 			res.status(200).json({
 				success: true,
 				message: "Successfully added the amenity to the database",
@@ -101,12 +111,12 @@ exports.all = async (req, res) => {
 	}
 };
 
-exports.remove = async (req, res) => {
+exports.delete = async (req, res) => {
 	try {
-		const { propertyId, amenityIds } = req.body;
+		const { amenityId } = req.body;
 
-		// Check if propertyId and amenityIds are provided
-		if (!propertyId || !amenityIds || !Array.isArray(amenityIds)) {
+		// Check if propertyId and amenityId are provided
+		if (!amenityId) {
 			return res.status(400).json({
 				success: false,
 				message: "Invalid input data",
@@ -114,36 +124,27 @@ exports.remove = async (req, res) => {
 		}
 
 		// Get the property by ID
-		const property = await db.property.findUnique({
-			where: { id: propertyId },
+		const amenity = await db.amenity.findUnique({
+			where: { id: parseInt(amenityId) },
 		});
 
 		// Check if the property exists
-		if (!property) {
+		if (!amenity) {
 			return res.status(404).json({
 				success: false,
-				message: "Property not found",
+				message: "Amenity not found",
 			});
 		}
 
-		// Disassociate the specified amenities from the property
-		await db.property.update({
-			where: { id: propertyId },
-			data: {
-				amenities: {
-					disconnect: amenityIds.map((id) => ({ id })),
-				},
-			},
-		});
-
 		res.status(200).json({
 			success: true,
-			message: "Amenities removed from property successfully",
+			message: "Amenities deleted successfully",
+			deleted: amenity,
 		});
 	} catch (error) {
 		res.status(500).json({
 			success: false,
-			message: "Something went wrong while removing amenities from property",
+			message: "Something went wrong while deleting amenity from server",
 			error: error.message,
 		});
 	}
