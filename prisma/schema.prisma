@@ -7,8 +7,9 @@ generator client {
 
 datasource db {
   // provider = "mysql"
+  // url          = env("DATABASE_URL_LOCAL")
   provider     = "postgresql"
-  url          = env("DATABASE_URL_LOCAL")
+  url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
 
