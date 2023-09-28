@@ -1,6 +1,28 @@
-<%- include('layout') %>
+<!DOCTYPE html>
+<html lang="en">
 
-<%- block('content', function(){ %>
-  <h1><%= title %></h1>
-  <p>Welcome to <%= title %></p>
-<%- }) %>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Rental Property</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Add your CSS file link here -->
+  </head>
+
+  <body>
+    <header>
+      <h1>Welcome to Rental Property</h1>
+    </header>
+
+    <main>
+      <p>
+        Explore a wide range of rental properties to find your perfect home!
+      </p>
+      <a href="/properties">Browse Properties</a>
+    </main>
+
+    <footer>
+      &copy; 2023 Rental Property
+    </footer>
+  </body>
+
+</html>
