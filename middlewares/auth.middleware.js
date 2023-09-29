@@ -26,6 +26,7 @@ exports.isLoggedIn = async (req, res, next) => {
         id: decodedJwtPayload.id,
       },
       select: {
+        id: true,
         name: true,
         email: true,
         role: true,

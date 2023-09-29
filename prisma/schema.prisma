@@ -49,6 +49,8 @@ model Amenity {
 
 model Property {
   id                 Int      @id @default(autoincrement())
+  views              Int      @default(0)
+  likes              Int      @default(0)
   userId             Int
   numberOfBedrooms   Int      @default(0)
   numberOfBathrooms  Int      @default(0)
@@ -60,7 +62,7 @@ model Property {
   buildingAge        String   @default("New")
   floor              String   @default("Ground Floor")
   totalFloor         String   @default("1")
-  builtupArea        Float    @default(0)
+  buildupArea        Float    @default(0)
   buildingType       String   @default("Other")
   furnishingStatus   String   @default("Unfurnished")
   expectedRent       String   @default("Contact for rent")
@@ -74,10 +76,16 @@ model Property {
   hasParking         Boolean  @default(false)
   carpetArea         Float    @default(0)
   facing             String   @default("Other")
-  location           String   @default("Unknown")
   description        String   @default("")
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  address            String   @default("Unknown")
+  streetAddress      String?
+  city               String?
+  state              String?
+  postalCode         String?
+  country            String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relationship
   user      User              @relation(fields: [userId], references: [id])
