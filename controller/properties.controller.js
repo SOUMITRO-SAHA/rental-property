@@ -406,7 +406,7 @@ exports.addPropertyDetails = async (req, res) => {
   }
 };
 
-// Todo: Testing Left
+// TODO: Testing Left
 exports.addRentalDetails = async (req, res) => {
   const {
     propertyId,

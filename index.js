@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-var path = require('path');
+const path = require('path');
 const cors = require('cors');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
@@ -15,8 +15,15 @@ const appointmentRoutes = require('./routes/appointment.routes');
 const ticketRoutes = require('./routes/ticket.routes');
 const generalRoutes = require('./routes/general.routes');
 const feedbackRoutes = require('./routes/feedback.routes');
+const chatRoutes = require('./routes/chat.routes');
+const { createServer } = require('node:http');
+const socket = require('./socket');
 
 const app = express();
+const server = createServer(app);
+
+// Integrate Socket.IO
+socket(server);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -72,12 +79,13 @@ app.use('/appointment', appointmentRoutes);
 app.use('/ticket', ticketRoutes);
 app.use('/g', generalRoutes);
 app.use('/feedback', feedbackRoutes);
+app.use('/chat', chatRoutes);
 
 app.on('error', (err) => {
   console.log('ERROR: ', err);
   throw err;
 });
 
-app.listen(config.PORT, () => {
+server.listen(config.PORT, () => {
   console.log(`Listening on ${config.PORT}`);
 });
