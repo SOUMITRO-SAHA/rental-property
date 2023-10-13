@@ -64,6 +64,8 @@ model Property {
   userId             Int
   numberOfBedrooms   Int      @default(0)
   numberOfBathrooms  Int      @default(0)
+  otherRooms         String?
+  brokerageCharge    String?
   possession         String   @default("Immediate")
   hasBalcony         Boolean  @default(false)
   hasPowerBackup     Boolean  @default(false)
@@ -86,16 +88,16 @@ model Property {
   hasParking         Boolean  @default(false)
   carpetArea         Float    @default(0)
   facing             String   @default("Other")
-  description        String   @default("")
-  address            String   @default("Unknown")
+  phone              String   @default("")
+  description        String?
+  address            String?
   streetAddress      String?
   city               String?
   state              String?
   postalCode         String?
   country            String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   // Relationship
   user      User              @relation(fields: [userId], references: [id])

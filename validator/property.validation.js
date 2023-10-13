@@ -32,6 +32,10 @@ exports.propertySchema = Joi.object({
   state: Joi.string().required(),
   postalCode: Joi.string().required(),
   country: Joi.string().required(),
+  phone: Joi.string().required(),
+  otherRooms: Joi.string().required(),
+  brokerageCharge: Joi.string().required(),
+  description: Joi.string().required(),
 });
 
 exports.propertyDetailsSchema = Joi.object({
