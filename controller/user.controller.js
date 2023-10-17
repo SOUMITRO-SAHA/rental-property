@@ -198,7 +198,80 @@ exports.updateRole = async (req, res) => {
   }
 };
 
-exports.loginWithGoogle = async (req, res) => {};
+exports.authWithGoogle = async (req, res) => {
+  try {
+    const { email, displayName, photoURL } = req.body;
+
+    // Check if the user already exists
+    const existingUser = await db.user.findFirst({
+      where: { email: email },
+    });
+
+    if (existingUser) {
+      // User exists, generate JWT token and log in
+      const token = jwt.sign(
+        {
+          id: existingUser.id,
+          email,
+        },
+        config.JWT_SECRET,
+        {
+          expiresIn: config.JWT_EXPIRY,
+        }
+      );
+
+      // Making the Password undefined
+      existingUser.token = token;
+      existingUser.password = undefined;
+
+      // Sending Response to the client
+      res.status(200).cookie('token', token, AuthOptions).json({
+        success: true,
+        message: 'Successfully logged in',
+        user: existingUser,
+      });
+    } else {
+      // User does not exist, proceed with sign-up logic
+      const newUser = await db.user.create({
+        data: {
+          name: displayName,
+          email: email,
+          imageUrl: photoURL,
+        },
+      });
+
+      // Generate JWT token for the new user
+      const token = jwt.sign(
+        {
+          id: newUser.id,
+          email,
+        },
+        config.JWT_SECRET,
+        {
+          expiresIn: config.JWT_EXPIRY,
+        }
+      );
+
+      // Making the Password undefined
+      newUser.token = token;
+      newUser.password = undefined;
+
+      // Sending Response to the client
+      res.status(200).cookie('token', token, AuthOptions).json({
+        success: true,
+        message: 'Successfully signed up',
+        user: newUser,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Something went wrong while processing Google login',
+      error: error.message,
+    });
+  }
+};
+
 exports.loginWithFacebook = async (req, res) => {};
 
 // ================= [CRUD on User] ================== //
