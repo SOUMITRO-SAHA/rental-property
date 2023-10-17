@@ -65,6 +65,10 @@ exports.addProperty = async (req, res) => {
         state: fields.state[0],
         postalCode: fields.postalCode[0],
         country: fields.country[0],
+        description: fields.description[0],
+        phone: fields.phone[0],
+        otherRooms: fields.otherRooms[0],
+        brokerageCharge: fields.brokerageCharge[0],
       };
 
       // Validate property data
@@ -406,7 +410,7 @@ exports.addPropertyDetails = async (req, res) => {
   }
 };
 
-// Todo: Testing Left
+// TODO: Testing Left
 exports.addRentalDetails = async (req, res) => {
   const {
     propertyId,

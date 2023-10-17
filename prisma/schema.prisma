@@ -7,7 +7,8 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL_LOCAL")
+  // url      = env("DATABASE_URL_LOCAL")
+  url      = env("DATABASE_URL_TEST")
 }
 
 enum AuthRoles {
@@ -25,19 +26,29 @@ enum TicketStatus {
 }
 
 model User {
-  id                   Int           @id @default(autoincrement())
+  id                   Int       @id @default(autoincrement())
   name                 String
-  email                String        @unique
+  email                String    @unique
   password             String
+  imageUrl             String    @default("")
   token                String?
-  role                 AuthRoles     @default(USER)
   forgotPasswordToken  String?
   forgotPasswordExpiry DateTime?
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
-  appointments         Appointment[]
-  tickets              Ticket[]
-  properties           Property[]
+  chatId               Int?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  role                 AuthRoles @default(USER)
+
+  chat             Chat[]
+  appointments     Appointment[]
+  tickets          Ticket[]
+  properties       Property[]
+  sentMessages     Message[]       @relation("SentMessages")
+  receivedMessages Message[]       @relation("ReceivedMessages")
+  messageStatus    MessageStatus[]
+  notifications    Notification[]
+
+  @@index([chatId])
 }
 
 model Amenity {
@@ -54,6 +65,8 @@ model Property {
   userId             Int
   numberOfBedrooms   Int      @default(0)
   numberOfBathrooms  Int      @default(0)
+  otherRooms         String?
+  brokerageCharge    String?
   possession         String   @default("Immediate")
   hasBalcony         Boolean  @default(false)
   hasPowerBackup     Boolean  @default(false)
@@ -76,16 +89,16 @@ model Property {
   hasParking         Boolean  @default(false)
   carpetArea         Float    @default(0)
   facing             String   @default("Other")
-  description        String   @default("")
-  address            String   @default("Unknown")
+  phone              String   @default("")
+  description        String?
+  address            String?
   streetAddress      String?
   city               String?
   state              String?
   postalCode         String?
   country            String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   // Relationship
   user      User              @relation(fields: [userId], references: [id])
@@ -140,4 +153,72 @@ model Feedback {
   fullName     String?
   mobileNumber String?
   message      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Chat {
+  id          Int      @id @default(autoincrement())
+  name        String?
+  description String?
+  isGroupChat Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  participants User[]
+  messages     Message[]
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  content    String   @db.Text
+  senderId   Int
+  receiverId Int
+  chatId     Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  Chat     Chat? @relation(fields: [chatId], references: [id])
+  sender   User  @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User  @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  attachments   Attachment[]
+  messageStatus MessageStatus[]
+  Notification  Notification[]
+}
+
+model Attachment {
+  id        Int      @id @default(autoincrement())
+  url       String
+  localPath String
+  messageId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  messageId Int
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id])
+  message Message @relation(fields: [messageId], references: [id])
+}
+
+model MessageStatus {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  messageId Int
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  message Message @relation(fields: [messageId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
 }
