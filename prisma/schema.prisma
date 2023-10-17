@@ -1,14 +1,220 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mysql"
-  // url      = env("DATABASE_URL_LOCAL")
   url      = env("DATABASE_URL_TEST")
+}
+
+model User {
+  id                   Int             @id @default(autoincrement())
+  name                 String
+  email                String          @unique
+  password             String?
+  imageUrl             String          @default("")
+  token                String?
+  role                 AuthRoles       @default(USER)
+  forgotPasswordToken  String?
+  forgotPasswordExpiry DateTime?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  chatId               Int?
+  appointments         Appointment[]
+  receivedMessages     Message[]       @relation("ReceivedMessages")
+  sentMessages         Message[]       @relation("SentMessages")
+  messageStatus        MessageStatus[]
+  notifications        Notification[]
+  properties           Property[]
+  tickets              Ticket[]
+  chat                 Chat[]          @relation("ChatToUser")
+
+  @@index([chatId])
+}
+
+model Amenity {
+  id              Int               @id @default(autoincrement())
+  name            String
+  icon            String            @default("")
+  PropertyAmenity PropertyAmenity[]
+}
+
+model Property {
+  id                 Int               @id @default(autoincrement())
+  userId             Int
+  numberOfBedrooms   Int               @default(0)
+  numberOfBathrooms  Int               @default(0)
+  possession         String            @default("Immediate")
+  hasBalcony         Boolean           @default(false)
+  hasPowerBackup     Boolean           @default(false)
+  propertyType       String            @default("Residential")
+  isApartment        Boolean           @default(false)
+  buildingAge        String            @default("New")
+  floor              String            @default("Ground Floor")
+  totalFloor         String            @default("1")
+  buildingType       String            @default("Other")
+  furnishingStatus   String            @default("Unfurnished")
+  expectedRent       String            @default("Contact for rent")
+  expectedDeposit    String            @default("Contact for deposit")
+  rentNegotiable     Boolean           @default(true)
+  maintenanceCharges Float             @default(0)
+  availableDate      DateTime          @default(now())
+  gatedSecurity      Boolean           @default(false)
+  ownershipType      String            @default("Freehold")
+  flooring           String            @default("Other")
+  hasParking         Boolean           @default(false)
+  carpetArea         Float             @default(0)
+  facing             String            @default("Other")
+  description        String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  likes              Int               @default(0)
+  views              Int               @default(0)
+  city               String?
+  country            String?
+  postalCode         String?
+  state              String?
+  streetAddress      String?
+  buildupArea        Float             @default(0)
+  address            String?
+  brokerageCharge    String?
+  otherRooms         String?
+  phone              String            @default("")
+  Photo              Photo[]           @relation("PropertyPhotos")
+  user               User              @relation(fields: [userId], references: [id])
+  amenities          PropertyAmenity[]
+
+  @@index([userId], map: "Property_userId_fkey")
+}
+
+model PropertyAmenity {
+  id         Int      @id @default(autoincrement())
+  propertyId Int
+  amenityId  Int
+  amenity    Amenity  @relation(fields: [amenityId], references: [id])
+  property   Property @relation(fields: [propertyId], references: [id])
+
+  @@index([amenityId], map: "PropertyAmenity_amenityId_fkey")
+  @@index([propertyId], map: "PropertyAmenity_propertyId_fkey")
+}
+
+model Photo {
+  id         Int      @id @default(autoincrement())
+  url        String
+  propertyId Int
+  property   Property @relation("PropertyPhotos", fields: [propertyId], references: [id])
+
+  @@index([propertyId], map: "Photo_propertyId_fkey")
+}
+
+model Appointment {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  startTime   DateTime
+  endTime     DateTime
+  description String?
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "Appointment_userId_fkey")
+}
+
+model Ticket {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  subject     String
+  description String
+  status      TicketStatus @default(OPEN)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  user        User         @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "Ticket_userId_fkey")
+}
+
+model Banner {
+  id       Int     @id @default(autoincrement())
+  imageUrl String?
+}
+
+model Feedback {
+  id           Int      @id @default(autoincrement())
+  email        String?
+  fullName     String?
+  mobileNumber String?
+  message      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Chat {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  description  String?
+  isGroupChat  Boolean   @default(false)
+  name         String?
+  messages     Message[]
+  participants User[]    @relation("ChatToUser")
+}
+
+model Message {
+  id            Int             @id @default(autoincrement())
+  content       String          @db.Text
+  senderId      Int
+  receiverId    Int
+  chatId        Int?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  attachments   Attachment[]
+  Chat          Chat?           @relation(fields: [chatId], references: [id])
+  receiver      User            @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender        User            @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  messageStatus MessageStatus[]
+  Notification  Notification[]
+
+  @@index([chatId], map: "Message_chatId_fkey")
+  @@index([receiverId], map: "Message_receiverId_fkey")
+  @@index([senderId], map: "Message_senderId_fkey")
+}
+
+model Attachment {
+  id        Int      @id @default(autoincrement())
+  url       String
+  localPath String
+  messageId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId], map: "Attachment_messageId_fkey")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  messageId Int
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  message   Message  @relation(fields: [messageId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([messageId], map: "Notification_messageId_fkey")
+  @@index([userId], map: "Notification_userId_fkey")
+}
+
+model MessageStatus {
+  id        Int      @id @default(autoincrement())
+  messageId Int
+  userId    Int
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  message   Message  @relation(fields: [messageId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([messageId], map: "MessageStatus_messageId_fkey")
+  @@index([userId], map: "MessageStatus_userId_fkey")
 }
 
 enum AuthRoles {
@@ -23,202 +229,4 @@ enum TicketStatus {
   IN_PROGRESS
   RESOLVED
   CLOSED
-}
-
-model User {
-  id                   Int       @id @default(autoincrement())
-  name                 String
-  email                String    @unique
-  password             String
-  imageUrl             String    @default("")
-  token                String?
-  forgotPasswordToken  String?
-  forgotPasswordExpiry DateTime?
-  chatId               Int?
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
-  role                 AuthRoles @default(USER)
-
-  chat             Chat[]
-  appointments     Appointment[]
-  tickets          Ticket[]
-  properties       Property[]
-  sentMessages     Message[]       @relation("SentMessages")
-  receivedMessages Message[]       @relation("ReceivedMessages")
-  messageStatus    MessageStatus[]
-  notifications    Notification[]
-
-  @@index([chatId])
-}
-
-model Amenity {
-  id              Int               @id @default(autoincrement())
-  name            String
-  icon            String            @default("")
-  PropertyAmenity PropertyAmenity[]
-}
-
-model Property {
-  id                 Int      @id @default(autoincrement())
-  views              Int      @default(0)
-  likes              Int      @default(0)
-  userId             Int
-  numberOfBedrooms   Int      @default(0)
-  numberOfBathrooms  Int      @default(0)
-  otherRooms         String?
-  brokerageCharge    String?
-  possession         String   @default("Immediate")
-  hasBalcony         Boolean  @default(false)
-  hasPowerBackup     Boolean  @default(false)
-  propertyType       String   @default("Residential")
-  isApartment        Boolean  @default(false)
-  buildingAge        String   @default("New")
-  floor              String   @default("Ground Floor")
-  totalFloor         String   @default("1")
-  buildupArea        Float    @default(0)
-  buildingType       String   @default("Other")
-  furnishingStatus   String   @default("Unfurnished")
-  expectedRent       String   @default("Contact for rent")
-  expectedDeposit    String   @default("Contact for deposit")
-  rentNegotiable     Boolean  @default(true)
-  maintenanceCharges Float    @default(0)
-  availableDate      DateTime @default(now())
-  gatedSecurity      Boolean  @default(false)
-  ownershipType      String   @default("Freehold")
-  flooring           String   @default("Other")
-  hasParking         Boolean  @default(false)
-  carpetArea         Float    @default(0)
-  facing             String   @default("Other")
-  phone              String   @default("")
-  description        String?
-  address            String?
-  streetAddress      String?
-  city               String?
-  state              String?
-  postalCode         String?
-  country            String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  // Relationship
-  user      User              @relation(fields: [userId], references: [id])
-  Photo     Photo[]           @relation("PropertyPhotos")
-  amenities PropertyAmenity[]
-}
-
-// Junction table that connects properties to amenities in a many-to-many relationship
-model PropertyAmenity {
-  id         Int      @id @default(autoincrement())
-  property   Property @relation(fields: [propertyId], references: [id])
-  propertyId Int
-  amenity    Amenity  @relation(fields: [amenityId], references: [id])
-  amenityId  Int
-}
-
-model Photo {
-  id         Int      @id @default(autoincrement())
-  url        String
-  property   Property @relation("PropertyPhotos", fields: [propertyId], references: [id])
-  propertyId Int
-}
-
-model Appointment {
-  id          Int      @id @default(autoincrement())
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-  startTime   DateTime
-  endTime     DateTime
-  description String?
-}
-
-model Ticket {
-  id          Int          @id @default(autoincrement())
-  userId      Int
-  subject     String
-  description String
-  status      TicketStatus @default(OPEN)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  user        User         @relation(fields: [userId], references: [id])
-}
-
-model Banner {
-  id       Int     @id @default(autoincrement())
-  imageUrl String?
-}
-
-model Feedback {
-  id           Int     @id @default(autoincrement())
-  email        String?
-  fullName     String?
-  mobileNumber String?
-  message      String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Chat {
-  id          Int      @id @default(autoincrement())
-  name        String?
-  description String?
-  isGroupChat Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  participants User[]
-  messages     Message[]
-}
-
-model Message {
-  id         Int      @id @default(autoincrement())
-  content    String   @db.Text
-  senderId   Int
-  receiverId Int
-  chatId     Int?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  Chat     Chat? @relation(fields: [chatId], references: [id])
-  sender   User  @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
-  receiver User  @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
-
-  attachments   Attachment[]
-  messageStatus MessageStatus[]
-  Notification  Notification[]
-}
-
-model Attachment {
-  id        Int      @id @default(autoincrement())
-  url       String
-  localPath String
-  messageId Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
-}
-
-model Notification {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  messageId Int
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user    User    @relation(fields: [userId], references: [id])
-  message Message @relation(fields: [messageId], references: [id])
-}
-
-model MessageStatus {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  messageId Int
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  message Message @relation(fields: [messageId], references: [id])
-  user    User    @relation(fields: [userId], references: [id])
 }
