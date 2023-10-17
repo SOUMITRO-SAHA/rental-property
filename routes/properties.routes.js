@@ -5,7 +5,7 @@ const { isLoggedIn } = require('../middlewares/auth.middleware');
 
 // ============= [Detailed Add] ============= //
 // Create a new property
-router.post('/add', isLoggedIn, propertyController.addProperty);
+router.post('/add', propertyController.addProperty);
 
 // Update a property by ID
 router
