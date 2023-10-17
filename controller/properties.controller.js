@@ -1,31 +1,35 @@
 const date = require('date-fns');
 const db = require('../config/db');
-const formidable = require('formidable');
-const path = require('path');
-const fs = require('fs');
+const { propertyImageUpload } = require('../services/propertyImageUploader');
 const {
   propertySchema,
   propertyDetailsSchema,
   rentalDetailsSchema,
 } = require('../validator/property.validation');
+const multer = require('multer');
 
 // Admin
 exports.addProperty = async (req, res) => {
-  const form = new formidable.IncomingForm();
-
-  form.parse(req, async (err, fields, files) => {
+  propertyImageUpload.array('photos', 5)(req, res, async (err) => {
     try {
-      if (err) {
-        res.status(500).json({
+      if (err instanceof multer.MulterError) {
+        return res.status(500).json({
           success: false,
-          message: 'Error occurred while parsing form data',
+          message: 'Error occurred while uploading files',
           error: err.message,
         });
-        return;
+      } else if (err) {
+        return res.status(500).json({
+          success: false,
+          message: 'Something went wrong',
+          error: err.message,
+        });
       }
 
+      const files = req.files;
+
       // Check if photos were uploaded
-      if (!files) {
+      if (!files || !files.length) {
         res.status(400).json({
           success: false,
           message: 'No photos selected. Default image will be used.',
@@ -33,47 +37,11 @@ exports.addProperty = async (req, res) => {
         return;
       }
 
-      // Store property data in an object
-      const propertyData = {
-        userId: req.user.id,
-        numberOfBedrooms: parseInt(fields.numberOfBedrooms[0]),
-        numberOfBathrooms: parseInt(fields.numberOfBathrooms[0]),
-        possession: fields.possession[0],
-        hasBalcony: fields.hasBalcony[0] === 'true',
-        hasPowerBackup: fields.hasPowerBackup[0] === 'true',
-        propertyType: fields.propertyType[0],
-        isApartment: fields.isApartment[0] === 'true',
-        buildingAge: fields.buildingAge[0],
-        floor: fields.floor[0],
-        totalFloor: fields.totalFloor[0],
-        buildupArea: parseFloat(fields.buildupArea[0]),
-        buildingType: fields.buildingType[0],
-        furnishingStatus: fields.furnishingStatus[0],
-        expectedRent: fields.expectedRent[0],
-        expectedDeposit: fields.expectedDeposit[0],
-        rentNegotiable: fields.rentNegotiable[0] === 'true',
-        maintenanceCharges: parseFloat(fields.maintenanceCharges[0]),
-        availableDate: fields.availableDate[0],
-        gatedSecurity: fields.gatedSecurity[0] === 'true',
-        ownershipType: fields.ownershipType[0],
-        flooring: fields.flooring[0],
-        hasParking: fields.hasParking[0] === 'true',
-        carpetArea: parseFloat(fields.carpetArea[0]),
-        facing: fields.facing[0],
-        streetAddress: fields.streetAddress[0],
-        city: fields.city[0],
-        state: fields.state[0],
-        postalCode: fields.postalCode[0],
-        country: fields.country[0],
-        description: fields.description[0],
-        phone: fields.phone[0],
-        otherRooms: fields.otherRooms[0],
-        brokerageCharge: fields.brokerageCharge[0],
-      };
-
       // Validate property data
-      const { error, value: validatePropertyData } =
-        propertySchema.validate(propertyData);
+      const { error, value: validatePropertyData } = propertySchema.validate({
+        ...req.body,
+        userId: req.user.id,
+      });
 
       if (error) {
         return res.status(400).json({
@@ -94,22 +62,9 @@ exports.addProperty = async (req, res) => {
       });
 
       // Create Photos
-      const imageArrayRes = Promise.all(
-        files.photos.map(async (element) => {
-          const uploadFolderPath = path.join(
-            __dirname,
-            '../uploads/properties'
-          );
-          const filePath = element.filepath;
-          const data = fs.readFileSync(filePath);
-          const imgExtension = element.mimetype.split('/')[1];
-
-          const imageName = `property-${
-            req.user.id
-          }-${Date.now()}.${imgExtension}`;
-          const imagePath = path.join(uploadFolderPath, imageName);
-          fs.writeFileSync(imagePath, data);
-
+      const imageArrayRes = await Promise.all(
+        files.map(async (file) => {
+          const imagePath = file.path;
           return imagePath;
         })
       );
@@ -127,7 +82,10 @@ exports.addProperty = async (req, res) => {
       res.status(201).json({
         success: true,
         message: 'The new property has been created successfully',
-        property: newProperty,
+        property: {
+          ...newProperty,
+          photos: photos,
+        },
       });
     } catch (error) {
       res.status(500).json({
